@@ -16,14 +16,14 @@ pub enum MappingType {
 
 /// Struct to provide mapping from new doc_id to old doc_id and segment.
 #[derive(Clone)]
-pub(crate) struct SegmentDocIdMapping {
+pub struct SegmentDocIdMapping {
     pub(crate) new_doc_id_to_old_doc_addr: Vec<DocAddress>,
     pub(crate) alive_bitsets: Vec<Option<ReadOnlyBitSet>>,
     mapping_type: MappingType,
 }
 
 impl SegmentDocIdMapping {
-    pub(crate) fn new(
+    pub fn new(
         new_doc_id_to_old_doc_addr: Vec<DocAddress>,
         mapping_type: MappingType,
         alive_bitsets: Vec<Option<ReadOnlyBitSet>>,
@@ -43,7 +43,7 @@ impl SegmentDocIdMapping {
     ///
     /// In the returned `DocAddress`, the `segment_ord` is the ordinal of targeted segment
     /// in the list of merged segments.
-    pub(crate) fn iter_old_doc_addrs(&self) -> impl Iterator<Item = DocAddress> + '_ {
+    pub fn iter_old_doc_addrs(&self) -> impl Iterator<Item = DocAddress> + '_ {
         self.new_doc_id_to_old_doc_addr.iter().copied()
     }
 
@@ -56,7 +56,7 @@ impl SegmentDocIdMapping {
     /// Being trivial is equivalent to having the `new_doc_id_to_old_doc_addr` array sorted.
     ///
     /// This allows for some optimization.
-    pub(crate) fn is_trivial(&self) -> bool {
+    pub fn is_trivial(&self) -> bool {
         match self.mapping_type {
             MappingType::Stacked | MappingType::StackedWithDeletes => true,
             MappingType::Shuffled => false,
