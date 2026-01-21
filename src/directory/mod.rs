@@ -16,13 +16,14 @@ pub mod error;
 
 mod composite_file;
 
-use std::io::BufWriter;
+use std::io::{self, BufWriter};
 use std::path::PathBuf;
 
 pub use common::file_slice::{FileHandle, FileSlice};
 pub use common::{AntiCallToken, OwnedBytes, TerminatingWrite};
 
-pub(crate) use self::composite_file::{CompositeFile, CompositeWrite};
+pub use self::composite_file::CompositeFile;
+pub(crate) use self::composite_file::CompositeWrite;
 pub use self::directory::{Directory, DirectoryClone, DirectoryLock};
 pub use self::directory_lock::{Lock, INDEX_WRITER_LOCK, META_LOCK};
 pub use self::ram_directory::RamDirectory;
@@ -54,6 +55,12 @@ pub use self::mmap_directory::MmapDirectory;
 /// `WritePtr` are required to implement both Write
 /// and Seek.
 pub type WritePtr = BufWriter<Box<dyn TerminatingWrite>>;
+
+/// Strips the ManagedDirectory footer and returns the file body.
+pub fn strip_managed_footer(file: FileSlice) -> io::Result<FileSlice> {
+    let (_footer, body) = footer::Footer::extract_footer(file)?;
+    Ok(body)
+}
 
 #[cfg(test)]
 mod tests;

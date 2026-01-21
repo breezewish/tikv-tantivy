@@ -167,6 +167,20 @@ impl CompositeFile {
             .map(|byte_range| self.data.slice(byte_range.clone()))
     }
 
+    /// Returns the byte range for a given (field, idx) in the composite file.
+    pub fn file_range(&self, field: Field, idx: usize) -> Option<Range<usize>> {
+        self.offsets_index
+            .get(&FileAddr { field, idx })
+            .cloned()
+    }
+
+    /// Iterates over all (field, idx, range) entries in the composite file.
+    pub fn entries(&self) -> impl Iterator<Item = (Field, usize, Range<usize>)> + '_ {
+        self.offsets_index
+            .iter()
+            .map(|(addr, range)| (addr.field, addr.idx, range.clone()))
+    }
+
     pub fn space_usage(&self) -> PerFieldSpaceUsage {
         let mut fields = Vec::new();
         for (&field_addr, byte_range) in &self.offsets_index {
